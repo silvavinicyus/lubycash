@@ -16,6 +16,9 @@ export default class User extends BaseModel {
   @column()
   public password: string;
 
+  @column()
+  public addressId: number;
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime;
 

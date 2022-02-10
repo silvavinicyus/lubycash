@@ -16,7 +16,7 @@ export default class Address extends BaseModel {
   public state: string;
 
   @column()
-  public zip_code: string;
+  public zipCode: string;
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime;
