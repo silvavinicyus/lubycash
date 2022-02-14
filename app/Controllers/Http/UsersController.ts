@@ -22,38 +22,54 @@ export default class UsersController {
 
     const kafka = new Kafka({
       clientId: 'bet-lotery',
-      brokers: ['localhost:9092', 'kafka:29092'],
+      brokers: ['kafka:29092'],
     });
 
     const message = {
       full_name: fullName,
+      email,
       phone,
       cpf_number: cpfNumber,
       current_balance: currentBalance,
       average_salary: averageSalary,
-      state,
+      status,
     };
 
-    await Database.transaction(async (trx) => {
-      const address = new Address();
+    console.log(message);
 
-      address.city = city;
-      address.state = state;
-      address.zipCode = zipCode;
+    const producerNewUser = kafka.producer();
 
-      address.useTransaction(trx);
-      await address.save();
+    await producerNewUser.connect();
 
-      const user = new User();
-
-      user.email = email;
-      user.password = password;
-      user.addressId = address.id;
-
-      user.useTransaction(trx);
-      await user.save();
-
-      return user;
+    await producerNewUser.send({
+      topic: 'user_lubycash',
+      messages: [{ value: JSON.stringify(message) }],
     });
+
+    // await Database.transaction(async (trx) => {
+    //   const address = new Address();
+
+    //   address.city = city;
+    //   address.state = state;
+    //   address.zipCode = zipCode;
+
+    //   address.useTransaction(trx);
+    //   await address.save();
+
+    //   const user = new User();
+
+    //   user.email = email;
+    //   user.password = password;
+    //   user.addressId = address.id;
+
+    //   user.useTransaction(trx);
+    //   await user.save();
+
+    //   return user;
+    // });
+
+    return {
+      message: 'okay',
+    };
   }
 }
