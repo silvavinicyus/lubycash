@@ -27,3 +27,4 @@ Route.get('/health', async ({ response }) => {
 });
 
 Route.resource('/users', 'UsersController');
+Route.resource('/admins', 'AdminsController');

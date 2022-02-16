@@ -6,19 +6,8 @@ import { Kafka } from 'kafkajs';
 
 export default class UsersController {
   public async store({ request, response }: HttpContextContract) {
-    const {
-      fullName,
-      email,
-      password,
-      phone,
-      cpfNumber,
-      currentBalance,
-      averageSalary,
-      status,
-      city,
-      state,
-      zipCode,
-    } = request.body();
+    const { fullName, email, password, phone, cpfNumber, averageSalary, city, state, zipCode } =
+      request.body();
 
     const kafka = new Kafka({
       clientId: 'bet-lotery',
@@ -30,9 +19,7 @@ export default class UsersController {
       email,
       phone,
       cpf_number: cpfNumber,
-      current_balance: currentBalance,
       average_salary: averageSalary,
-      status,
     };
 
     console.log(message);
@@ -42,7 +29,7 @@ export default class UsersController {
     await producerNewUser.connect();
 
     await producerNewUser.send({
-      topic: 'user_lubycash',
+      topic: 'createuser',
       messages: [{ value: JSON.stringify(message) }],
     });
 
@@ -67,6 +54,8 @@ export default class UsersController {
 
     //   return user;
     // });
+
+    producerNewUser.disconnect();
 
     return {
       message: 'okay',
