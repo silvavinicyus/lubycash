@@ -12,7 +12,7 @@ export default class UsersController {
       request.body();
 
     const kafka = new Kafka({
-      clientId: 'bet-lotery',
+      clientId: 'lubycash',
       brokers: ['kafka:29092'],
     });
 
@@ -48,39 +48,45 @@ export default class UsersController {
         const data = message.value!.toString();
         const dataJson = JSON.parse(data);
 
-        // await Database.transaction(async (trx) => {
-        const address = new Address();
+        await Database.transaction(async (trx) => {
+          const address = new Address();
 
-        address.city = city;
-        address.state = state;
-        address.zipCode = zipCode;
+          address.city = city;
+          address.state = state;
+          address.zipCode = zipCode;
 
-        // address.useTransaction(trx);
-        await address.save();
+          address.useTransaction(trx);
+          await address.save();
 
-        const user = new User();
+          const user = new User();
 
-        user.email = email;
-        user.password = password;
-        user.addressId = address.id;
+          user.email = email;
+          user.password = password;
+          user.addressId = address.id;
 
-        // user.useTransaction(trx);
-        await user.save();
+          user.useTransaction(trx);
+          await user.save();
 
-        const userPermission = new UserPermission();
-        const permission = await Permission.findByOrFail('type', 'client');
+          const userPermission = new UserPermission();
+          const permission = await Permission.findByOrFail('type', 'client');
 
-        userPermission.userId = user.id;
-        userPermission.permissionId = permission.id;
+          userPermission.userId = user.id;
+          userPermission.permissionId = permission.id;
 
-        // userPermission.useTransaction(trx);
-        await userPermission.save();
-        // });
+          userPermission.useTransaction(trx);
+          await userPermission.save();
+        });
       },
     });
 
     return response.ok({
       message: 'Your request has been received, we will send you an email when we have a result!',
     });
+  }
+
+  public async index() {
+    const users = await User.query().preload('statements');
+
+    return users;
   }
 }
