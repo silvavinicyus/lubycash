@@ -16,10 +16,10 @@ export default class Statement extends BaseModel {
   public value: number;
 
   @column()
-  public senderId: string;
+  public senderId: number;
 
   @column()
-  public receiverId: string;
+  public receiverId: number;
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime;

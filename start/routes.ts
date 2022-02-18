@@ -26,6 +26,11 @@ Route.get('/health', async ({ response }) => {
   return report.healthy ? response.ok(report) : response.badRequest(report);
 });
 
-Route.resource('/users', 'UsersController');
+Route.resource('/users', 'UsersController').middleware({
+  index: ['auth', 'isAdmin'],
+});
 Route.resource('/admins', 'AdminsController');
-Route.resource('/statements', 'StatementsController');
+Route.resource('/statements', 'StatementsController').middleware({
+  store: ['auth'],
+});
+Route.post('/authenticate', 'AuthController.login');

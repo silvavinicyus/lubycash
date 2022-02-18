@@ -45,7 +45,19 @@ export default class AdminsController {
   }
 
   public async index() {
-    const admins = await User.query().preload('userPermissions');
+    const allUsers = await User.query().preload('userPermissions', (permission) => {
+      permission.preload('permission');
+    });
+
+    let admins: User[] = [];
+
+    allUsers.forEach((user) => {
+      for (let i = 0; i < user.userPermissions.length; i++) {
+        if (user.userPermissions[i].permission.type === 'admin') {
+          admins.push(user);
+        }
+      }
+    });
 
     return admins;
   }

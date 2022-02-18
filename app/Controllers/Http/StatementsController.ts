@@ -17,8 +17,8 @@ interface UserMs {
 }
 
 export default class StatementsController {
-  public async store({ request, response }: HttpContextContract) {
-    const { operation, value, senderId, receiverId } = request.body();
+  public async store({ request, response, auth }: HttpContextContract) {
+    const { operation, value, receiverId } = request.body();
 
     const HTTP = axios.create({
       baseURL: 'http://ms_client:3000',
@@ -30,7 +30,7 @@ export default class StatementsController {
     const statement = new Statement();
 
     // sender
-    const userSender = await User.findOrFail(senderId);
+    const userSender = await User.findOrFail(auth.user?.id);
     const axiosResponseSender = await HTTP.get(`/users/email/${userSender.email}`);
     if (axiosResponseSender.status !== 200) {
       return response.badRequest({ error: 'This sender user does not exists' });
@@ -84,7 +84,7 @@ export default class StatementsController {
 
     statement.operation = operation;
     statement.value = value;
-    statement.senderId = senderId;
+    statement.senderId = userSender.id;
     statement.receiverId = receiverId;
     await statement.save();
 
