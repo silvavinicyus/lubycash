@@ -69,10 +69,17 @@ export default class StatementsController {
       email: userOnMsReceiver.email,
     });
 
-    console.log(resultAddToBalance);
-
     if (resultAddToBalance.status !== 200) {
-      return response.badRequest({ error: 'There was a failed while making the statement' });
+      return response.badRequest({ error: 'There was a failure while making the statement' });
+    }
+
+    const resultRemoveFromBalance = await HTTP.post('/users/remove/balance', {
+      value,
+      email: userOnMsSender.email,
+    });
+
+    if (resultRemoveFromBalance.status !== 200) {
+      return response.badRequest({ error: 'There was a failure while making the statement' });
     }
 
     statement.operation = operation;
