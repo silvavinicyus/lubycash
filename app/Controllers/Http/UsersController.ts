@@ -89,14 +89,20 @@ export default class UsersController {
     const HTTP = axios.create({
       baseURL: 'http://ms_client:3000',
       validateStatus: function (status) {
-        return status >= 200 && status < 410; // default
+        return status >= 200 && status < 410;
       },
     });
 
     const { status } = request.qs();
 
-    const users = await HTTP.get(`/users/?status=${status}`);
+    let users: User[];
 
-    return response.ok(users.data);
+    if (status) {
+      users = await HTTP.get(`/users?status=${status}`);
+    } else {
+      users = await HTTP.get(`/users`);
+    }
+
+    return response.ok(users['data']);
   }
 }

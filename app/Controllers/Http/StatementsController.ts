@@ -18,12 +18,12 @@ interface UserMs {
 
 export default class StatementsController {
   public async store({ request, response, auth }: HttpContextContract) {
-    const { operation, value, receiverId } = request.body();
+    const { value, cpfNumber } = request.body();
 
     const HTTP = axios.create({
       baseURL: 'http://ms_client:3000',
       validateStatus: function (status) {
-        return status >= 200 && status < 410; // default
+        return status >= 200 && status < 410;
       },
     });
 
@@ -31,7 +31,7 @@ export default class StatementsController {
 
     // sender
     const userSender = await User.findOrFail(auth.user?.id);
-    const axiosResponseSender = await HTTP.get(`/users/email/${userSender.email}`);
+    const axiosResponseSender = await HTTP.get(`/users/field?email=${userSender.email}`);
     if (axiosResponseSender.status !== 200) {
       return response.badRequest({ error: 'This sender user does not exists' });
     }
@@ -40,6 +40,7 @@ export default class StatementsController {
     if (userOnMsSender.status !== 'approved') {
       return response.badRequest({
         error: 'The user making this statement cannot do this operation',
+        user: userOnMsSender,
       });
     }
 
@@ -50,15 +51,17 @@ export default class StatementsController {
     }
 
     // receiver
-    const userReceiver = await User.findOrFail(receiverId);
-    const axiosResponseReceiver = await HTTP.get(`/users/email/${userReceiver.email}`);
+    const axiosResponseReceiver = await HTTP.get(`/users/field?cpf=${cpfNumber}`);
     if (axiosResponseReceiver.status !== 200) {
-      return response.badRequest({ error: 'There is no client with this email' });
+      return response.badRequest({
+        error: 'There is no client with this email',
+        status: axiosResponseReceiver.status,
+      });
     }
 
     const userOnMsReceiver = axiosResponseReceiver['data'] as UserMs;
 
-    console.log(userOnMsReceiver.email);
+    const userReceiver = await User.findByOrFail('email', userOnMsReceiver.email);
 
     if (userOnMsReceiver.status !== 'approved') {
       return response.badRequest({ error: 'This user cannot receive a statement' });
@@ -82,10 +85,10 @@ export default class StatementsController {
       return response.badRequest({ error: 'There was a failure while making the statement' });
     }
 
-    statement.operation = operation;
+    statement.operation = 'pix';
     statement.value = value;
     statement.senderId = userSender.id;
-    statement.receiverId = receiverId;
+    statement.receiverId = userReceiver.id;
     await statement.save();
 
     return response.created(statement);
