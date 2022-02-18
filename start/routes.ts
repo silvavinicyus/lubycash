@@ -29,6 +29,7 @@ Route.get('/health', async ({ response }) => {
 Route.resource('/users', 'UsersController').middleware({
   index: ['auth', 'isAdmin'],
 });
+
 Route.resource('/admins', 'AdminsController').middleware({
   '*': ['auth', 'isAdmin'],
 });

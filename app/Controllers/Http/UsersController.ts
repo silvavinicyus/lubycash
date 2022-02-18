@@ -4,6 +4,7 @@ import Address from 'App/Models/Address';
 import Permission from 'App/Models/Permission';
 import User from 'App/Models/User';
 import UserPermission from 'App/Models/UserPermission';
+import axios from 'axios';
 import { Kafka } from 'kafkajs';
 
 export default class UsersController {
@@ -84,9 +85,18 @@ export default class UsersController {
     });
   }
 
-  public async index() {
-    const users = await User.query().preload('statements');
+  public async index({ request, response }: HttpContextContract) {
+    const HTTP = axios.create({
+      baseURL: 'http://ms_client:3000',
+      validateStatus: function (status) {
+        return status >= 200 && status < 410; // default
+      },
+    });
 
-    return users;
+    const { status } = request.qs();
+
+    const users = await HTTP.get(`/users/?status=${status}`);
+
+    return response.ok(users.data);
   }
 }
