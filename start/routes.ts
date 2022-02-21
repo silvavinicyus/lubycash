@@ -30,10 +30,17 @@ Route.resource('/users', 'UsersController').middleware({
   index: ['auth', 'isAdmin'],
 });
 
+Route.get('/users/statements/:id', 'UsersController.showStatement').middleware(['auth']);
+
 Route.resource('/admins', 'AdminsController').middleware({
   '*': ['auth', 'isAdmin'],
 });
+
 Route.resource('/statements', 'StatementsController').middleware({
   store: ['auth'],
 });
+
+// authenticate and authorization
 Route.post('/authenticate', 'AuthController.login');
+Route.post('/forgot/:secureId', 'ForgotPasswordController.store');
+Route.post('/reset', 'ResetPasswordController.store');

@@ -2,6 +2,7 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import Database from '@ioc:Adonis/Lucid/Database';
 import Address from 'App/Models/Address';
 import Permission from 'App/Models/Permission';
+import Statement from 'App/Models/Statement';
 import User from 'App/Models/User';
 import UserPermission from 'App/Models/UserPermission';
 import axios from 'axios';
@@ -49,34 +50,34 @@ export default class UsersController {
         const data = message.value!.toString();
         const dataJson = JSON.parse(data);
 
-        await Database.transaction(async (trx) => {
-          const address = new Address();
+        // await Database.transaction(async (trx) => {
+        //   const address = new Address();
 
-          address.city = city;
-          address.state = state;
-          address.zipCode = zipCode;
+        //   address.city = city;
+        //   address.state = state;
+        //   address.zipCode = zipCode;
 
-          address.useTransaction(trx);
-          await address.save();
+        //   address.useTransaction(trx);
+        //   await address.save();
 
-          const user = new User();
+        //   const user = new User();
 
-          user.email = email;
-          user.password = password;
-          user.addressId = address.id;
+        //   user.email = email;
+        //   user.password = password;
+        //   user.addressId = address.id;
 
-          user.useTransaction(trx);
-          await user.save();
+        //   user.useTransaction(trx);
+        //   await user.save();
 
-          const userPermission = new UserPermission();
-          const permission = await Permission.findByOrFail('type', 'client');
+        //   const userPermission = new UserPermission();
+        //   const permission = await Permission.findByOrFail('type', 'client');
 
-          userPermission.userId = user.id;
-          userPermission.permissionId = permission.id;
+        //   userPermission.userId = user.id;
+        //   userPermission.permissionId = permission.id;
 
-          userPermission.useTransaction(trx);
-          await userPermission.save();
-        });
+        //   userPermission.useTransaction(trx);
+        //   await userPermission.save();
+        // });
       },
     });
 
@@ -104,5 +105,33 @@ export default class UsersController {
     }
 
     return response.ok(users['data']);
+  }
+
+  public async showStatement({ auth }: HttpContextContract) {
+    const id = auth.user!.id;
+
+    const outcomings = await Statement.query().where('sender_id', id);
+
+    const incomings = await Statement.query().where('receiver_id', id);
+
+    const incomingBalance = incomings.reduce((currentValue, statement) => {
+      return currentValue + statement.value;
+    }, 0);
+
+    const outcomingBalance = outcomings.reduce((currentValue, statement) => {
+      return currentValue + statement.value;
+    }, 0);
+
+    console.log(incomingBalance - outcomingBalance);
+
+    const userStatement = {
+      incomings,
+      outcomings,
+      incomingBalance,
+      outcomingBalance: +`-${outcomingBalance}`,
+      balance: incomingBalance - outcomingBalance,
+    };
+
+    return userStatement;
   }
 }
