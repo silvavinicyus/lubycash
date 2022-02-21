@@ -30,7 +30,9 @@ Route.resource('/users', 'UsersController').middleware({
   index: ['auth', 'isAdmin'],
 });
 
-Route.get('/users/statements/:id', 'UsersController.showStatement').middleware(['auth']);
+Route.get('/users/date/statement', 'UsersController.statementBetweenDates').middleware(['auth']);
+
+Route.get('/users/statements', 'UsersController.showStatement').middleware(['auth']);
 
 Route.resource('/admins', 'AdminsController').middleware({
   '*': ['auth', 'isAdmin'],

@@ -122,7 +122,37 @@ export default class UsersController {
       return currentValue + statement.value;
     }, 0);
 
-    console.log(incomingBalance - outcomingBalance);
+    const userStatement = {
+      incomings,
+      outcomings,
+      incomingBalance,
+      outcomingBalance: +`-${outcomingBalance}`,
+      balance: incomingBalance - outcomingBalance,
+    };
+
+    return userStatement;
+  }
+
+  public async statementBetweenDates({ request, auth, response }: HttpContextContract) {
+    const id = auth.user!.id;
+
+    const { date1, date2 } = request.qs();
+
+    const incomings = await Statement.query()
+      .where('receiver_id', id)
+      .whereBetween('created_at', [date1, date2]);
+
+    const outcomings = await Statement.query()
+      .where('sender_id', id)
+      .whereBetween('created_at', [date1, date2]);
+
+    const incomingBalance = incomings.reduce((currentValue, statement) => {
+      return currentValue + statement.value;
+    }, 0);
+
+    const outcomingBalance = outcomings.reduce((currentValue, statement) => {
+      return currentValue + statement.value;
+    }, 0);
 
     const userStatement = {
       incomings,
