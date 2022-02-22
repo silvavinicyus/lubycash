@@ -21,7 +21,7 @@ export default class ForgotPasswordController {
 
     const forgtPasswordUrl = `${Env.get('FRONTEND_URL')}/reset?token=${token}`;
 
-    const log = await Mail.send((message) => {
+    await Mail.send((message) => {
       message
         .from('recovery@lubycash.com')
         .to(user.email)
@@ -32,6 +32,6 @@ export default class ForgotPasswordController {
         });
     });
 
-    return response.created({ log });
+    return response.ok({ message: 'Email send to the user email!' });
   }
 }

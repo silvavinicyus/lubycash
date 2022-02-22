@@ -29,7 +29,6 @@ export default class StatementsController {
 
     const statement = new Statement();
 
-    // sender
     const userSender = await User.findOrFail(auth.user?.id);
     const axiosResponseSender = await HTTP.get(`/users/field?email=${userSender.email}`);
     if (axiosResponseSender.status !== 200) {
@@ -50,7 +49,6 @@ export default class StatementsController {
       });
     }
 
-    // receiver
     const axiosResponseReceiver = await HTTP.get(`/users/field?cpf=${cpfNumber}`);
     if (axiosResponseReceiver.status !== 200) {
       return response.badRequest({

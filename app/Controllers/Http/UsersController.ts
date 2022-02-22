@@ -25,8 +25,6 @@ export default class UsersController {
       average_salary: averageSalary,
     };
 
-    console.log(message);
-
     const producerNewUser = kafka.producer();
 
     await producerNewUser.connect();

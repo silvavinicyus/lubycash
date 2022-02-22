@@ -4,10 +4,13 @@ import Address from 'App/Models/Address';
 import Permission from 'App/Models/Permission';
 import User from 'App/Models/User';
 import UserPermission from 'App/Models/UserPermission';
+import DestroyAdminValidator from 'App/Validators/Admins/DestroyAdminValidator';
+import ShowAdminValidator from 'App/Validators/Admins/ShowAdminValidator';
+import StoreAdminValidator from 'App/Validators/Admins/StoreAdminValidator';
 
 export default class AdminsController {
   public async store({ request, response }: HttpContextContract) {
-    // await request.validate(CreateAdminValidator);
+    await request.validate(StoreAdminValidator);
 
     const { email, password } = request.body();
 
@@ -62,9 +65,8 @@ export default class AdminsController {
     return admins;
   }
 
-  public async show({ request }: HttpContextContract) {
-    // await request.validate(ShowUserValidator);
-
+  public async show({ request, response }: HttpContextContract) {
+    await request.validate(ShowAdminValidator);
     const { id } = request.params();
 
     const admin = await User.query()
@@ -73,10 +75,16 @@ export default class AdminsController {
         permissions.preload('permission');
       });
 
+    if (admin.length <= 0) {
+      return response.notFound({ message: 'There is no admin with the given id' });
+    }
+
     return admin;
   }
 
   public async destroy({ request, response }: HttpContextContract) {
+    await request.validate(DestroyAdminValidator);
+
     const { id } = request.params();
 
     const admin = await User.findBy('secure_id', id);
