@@ -24,11 +24,9 @@ export default class UsersController {
       phone,
       cpf_number: cpfNumber,
       average_salary: averageSalary,
-      city: city,
-      state: state,
-      zipCode: zipCode,
-      password: password,
     };
+
+    console.log(message);
 
     const producerNewUser = kafka.producer();
 
@@ -50,34 +48,32 @@ export default class UsersController {
         const data = message.value!.toString();
         const dataJson = JSON.parse(data);
 
-        // await Database.transaction(async (trx) => {
-        //   const address = new Address();
+        console.log(dataJson);
 
-        //   address.city = city;
-        //   address.state = state;
-        //   address.zipCode = zipCode;
+        if (!dataJson['error']) {
+          const address = new Address();
 
-        //   address.useTransaction(trx);
-        //   await address.save();
+          address.city = city;
+          address.state = state;
+          address.zipCode = zipCode;
 
-        //   const user = new User();
+          await address.save();
 
-        //   user.email = email;
-        //   user.password = password;
-        //   user.addressId = address.id;
+          const user = new User();
 
-        //   user.useTransaction(trx);
-        //   await user.save();
+          user.email = email;
+          user.password = password;
+          user.addressId = address.id;
 
-        //   const userPermission = new UserPermission();
-        //   const permission = await Permission.findByOrFail('type', 'client');
+          await user.save();
 
-        //   userPermission.userId = user.id;
-        //   userPermission.permissionId = permission.id;
+          const userPermission = new UserPermission();
+          const permission = await Permission.findByOrFail('type', 'client');
 
-        //   userPermission.useTransaction(trx);
-        //   await userPermission.save();
-        // });
+          userPermission.userId = user.id;
+          userPermission.permissionId = permission.id;
+          await userPermission.save();
+        }
       },
     });
 
