@@ -1,5 +1,4 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
-import Database from '@ioc:Adonis/Lucid/Database';
 import Address from 'App/Models/Address';
 import Permission from 'App/Models/Permission';
 import Statement from 'App/Models/Statement';
@@ -47,8 +46,6 @@ export default class UsersController {
       eachMessage: async ({ topic, partition, message }) => {
         const data = message.value!.toString();
         const dataJson = JSON.parse(data);
-
-        console.log(dataJson);
 
         if (!dataJson['error']) {
           const address = new Address();
