@@ -4,6 +4,7 @@ import Permission from 'App/Models/Permission';
 import Statement from 'App/Models/Statement';
 import User from 'App/Models/User';
 import UserPermission from 'App/Models/UserPermission';
+import GetStatementsValidator from 'App/Validators/Users/GetStatementsValidator';
 import StoreUserValidator from 'App/Validators/Users/StoreUserValidator';
 import axios from 'axios';
 import { Kafka } from 'kafkajs';
@@ -106,6 +107,8 @@ export default class UsersController {
   }
 
   public async showStatement({ request }: HttpContextContract) {
+    await request.validate(GetStatementsValidator);
+
     const { id } = request.params();
 
     const outcomings = await Statement.query().where('sender_id', id);
@@ -132,6 +135,8 @@ export default class UsersController {
   }
 
   public async statementBetweenDates({ request }: HttpContextContract) {
+    await request.validate(GetStatementsValidator);
+
     const { id } = request.params();
 
     const { startingDate, endingDate } = request.qs();
