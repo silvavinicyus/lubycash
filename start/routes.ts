@@ -8,8 +8,14 @@ Route.get('/health', async ({ response }) => {
 Route.resource('/users', 'UsersController').middleware({
   index: ['auth', 'isAdmin'],
 });
-Route.get('/users/date/statement', 'UsersController.statementBetweenDates').middleware(['auth']);
-Route.get('/users/bank/statements', 'UsersController.showStatement').middleware(['auth']);
+Route.get('/users/date/statements/:id', 'UsersController.statementBetweenDates').middleware([
+  'auth',
+  'isAdmin',
+]);
+Route.get('/users/bank/statements/:id', 'UsersController.showStatement').middleware([
+  'auth',
+  'isAdmin',
+]);
 Route.get('/users/date/by', 'UsersController.usersBetweenDates').middleware(['auth', 'isAdmin']);
 
 Route.resource('/admins', 'AdminsController').middleware({

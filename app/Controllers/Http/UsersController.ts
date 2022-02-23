@@ -105,8 +105,8 @@ export default class UsersController {
     return response.ok(users['data']);
   }
 
-  public async showStatement({ auth }: HttpContextContract) {
-    const id = auth.user!.id;
+  public async showStatement({ request }: HttpContextContract) {
+    const { id } = request.params();
 
     const outcomings = await Statement.query().where('sender_id', id);
 
@@ -131,18 +131,18 @@ export default class UsersController {
     return userStatement;
   }
 
-  public async statementBetweenDates({ request, auth, response }: HttpContextContract) {
-    const id = auth.user!.id;
+  public async statementBetweenDates({ request }: HttpContextContract) {
+    const { id } = request.params();
 
-    const { date1, date2 } = request.qs();
+    const { startingDate, endingDate } = request.qs();
 
     const incomings = await Statement.query()
       .where('receiver_id', id)
-      .whereBetween('created_at', [date1, date2]);
+      .whereBetween('created_at', [startingDate, endingDate]);
 
     const outcomings = await Statement.query()
       .where('sender_id', id)
-      .whereBetween('created_at', [date1, date2]);
+      .whereBetween('created_at', [startingDate, endingDate]);
 
     const incomingBalance = incomings.reduce((currentValue, statement) => {
       return currentValue + statement.value;
