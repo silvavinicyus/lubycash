@@ -8,12 +8,7 @@ export default class StoreUserValidator extends CustomMessages {
   }
 
   public schema = schema.create({
-    fullName: schema.string({}, [
-      rules.minLength(5),
-      rules.alpha({
-        allow: ['space'],
-      }),
-    ]),
+    fullName: schema.string({}, [rules.minLength(5)]),
     email: schema.string({ trim: true }, [
       rules.email(),
       rules.unique({ table: 'users', column: 'email', caseInsensitive: true }),
