@@ -88,7 +88,7 @@ export default class UsersController {
       },
     });
 
-    const { status } = request.qs();
+    const { status, startingDate, endingDate } = request.qs();
 
     let users: User[];
 
@@ -96,6 +96,10 @@ export default class UsersController {
       users = await HTTP.get(`/users?status=${status}`);
     } else {
       users = await HTTP.get(`/users`);
+    }
+
+    if (startingDate && endingDate) {
+      users = await HTTP.get(`/users/date?starting_date=${startingDate}&ending_date=${endingDate}`);
     }
 
     return response.ok(users['data']);

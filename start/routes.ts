@@ -10,6 +10,8 @@ Route.resource('/users', 'UsersController').middleware({
 });
 Route.get('/users/date/statement', 'UsersController.statementBetweenDates').middleware(['auth']);
 Route.get('/users/bank/statements', 'UsersController.showStatement').middleware(['auth']);
+Route.get('/users/date/by', 'UsersController.usersBetweenDates').middleware(['auth', 'isAdmin']);
+
 Route.resource('/admins', 'AdminsController').middleware({
   '*': ['auth', 'isAdmin'],
 });
