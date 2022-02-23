@@ -4,11 +4,14 @@ import Permission from 'App/Models/Permission';
 import Statement from 'App/Models/Statement';
 import User from 'App/Models/User';
 import UserPermission from 'App/Models/UserPermission';
+import StoreUserValidator from 'App/Validators/Users/StoreUserValidator';
 import axios from 'axios';
 import { Kafka } from 'kafkajs';
 
 export default class UsersController {
   public async store({ request, response }: HttpContextContract) {
+    await request.validate(StoreUserValidator);
+
     const { fullName, email, password, phone, cpfNumber, averageSalary, city, state, zipCode } =
       request.body();
 
@@ -41,7 +44,7 @@ export default class UsersController {
     await consumerUserCreated.subscribe({ topic: 'usercreated', fromBeginning: false });
 
     await consumerUserCreated.run({
-      eachMessage: async ({ topic, partition, message }) => {
+      eachMessage: async ({ message }) => {
         const data = message.value!.toString();
         const dataJson = JSON.parse(data);
 

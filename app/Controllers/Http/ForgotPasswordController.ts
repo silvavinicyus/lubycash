@@ -4,9 +4,12 @@ import Env from '@ioc:Adonis/Core/Env';
 import User from 'App/Models/User';
 import Token from 'App/Models/Token';
 import Mail from '@ioc:Adonis/Addons/Mail';
+import ForgotPasswordValidator from 'App/Validators/PasswordReset/ForgotPasswordValidator';
 
 export default class ForgotPasswordController {
   public async store({ request, response }: HttpContextContract) {
+    await request.validate(ForgotPasswordValidator);
+
     const { secureId } = request.params();
 
     const user = await User.findByOrFail('secure_id', secureId);
