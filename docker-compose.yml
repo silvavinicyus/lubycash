@@ -1,0 +1,30 @@
+version: "3.7"
+
+services:
+  database_lubycash:
+    image: postgres
+    container_name: database_lubycash
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=db_lubycash
+    volumes:
+      - pgdata:/data/postgres
+  app:
+    build: .
+    container_name: lubycash
+    ports:
+      - 3333:3333
+    volumes:
+      - .:/usr/app
+    links:
+      -  database_lubycash
+    depends_on:
+      -  database_lubycash
+
+
+volumes:
+  pgdata:
+    driver: local
